@@ -21,7 +21,7 @@ public class WebSocketNotificationService {
      * @param idUsuario - ID del usuario que reportó la mascota perdida
      * @param notificacion - Objeto con los detalles de la notificación
      */
-    public void notificarUsuario(Integer idUsuario, Notificacion notificacion) {
+    public void notificarUsuario(Long idUsuario, Notificacion notificacion) {
         try {
             // Construir mensaje personalizado
             Map<String, Object> mensaje = new HashMap<>();
