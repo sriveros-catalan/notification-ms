@@ -20,12 +20,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         config.setApplicationDestinationPrefixes("/app");
     }
 
-    @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // Endpoint WebSocket para que se conecten los clientes
-        // El cliente se conecta a ws://localhost:8081/ws-notifications
-        registry.addEndpoint("/ws-notifications")
-                .setAllowedOrigins("*")
-                .withSockJS();
-    }
+        @Override
+        public void registerStompEndpoints(StompEndpointRegistry registry) {
+            registry.addEndpoint("/ws-notifications")
+                    .setAllowedOriginPatterns("*")
+                    .withSockJS();
+        }
 }
