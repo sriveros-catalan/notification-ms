@@ -1,0 +1,40 @@
+version: '3.8'
+services:
+  # Base de Datos PostgreSQL
+  postgres-db:
+    image: postgres:15
+    container_name: postgres-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+
+  # RabbitMQ con Panel de Control
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"   # Puerto para recibir mensajes
+      - "15672:15672" # Puerto para ver la interfaz web
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+
+  # Tu Microservicio de Notificaciones
+  notification-ms:
+    build: .
+    container_name: notification-ms
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres-db
+      - rabbitmq
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/${POSTGRES_DB}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_USERNAME=${RABBITMQ_DEFAULT_USER}
+      - SPRING_RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
