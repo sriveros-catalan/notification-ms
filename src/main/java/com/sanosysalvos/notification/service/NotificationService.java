@@ -32,6 +32,11 @@ public void recuperar(Exception e, CoincidenciaEventDTO evento) {
     Notificacion errorLog = new Notificacion();
     errorLog.setId_coincidencia(evento.getId_coincidencia());
     errorLog.setId_usuario(evento.getId_usuario_reporte_perdida());
+    errorLog.setId_usuario_reporte_perdida(evento.getId_usuario_reporte_perdida());
+    errorLog.setNombre_mascota(evento.getNombre_mascota());
+    errorLog.setDireccion(evento.getDireccion());
+    errorLog.setFecha_coincidencia(evento.getFecha_coincidencia());
+    errorLog.setEmail_usuario(evento.getEmail_usuario());
     errorLog.setEstado_notificacion("FALLIDA");
     errorLog.setMensajeError(e.getMessage());
     repository.save(errorLog);
@@ -44,7 +49,11 @@ public void procesarNotificacion(CoincidenciaEventDTO evento) {
     Notificacion n = new Notificacion();
     n.setId_coincidencia(evento.getId_coincidencia());
     n.setId_usuario(evento.getId_usuario_reporte_perdida());
-
+    n.setId_usuario_reporte_perdida(evento.getId_usuario_reporte_perdida());
+    n.setNombre_mascota(evento.getNombre_mascota());
+    n.setDireccion(evento.getDireccion());
+    n.setFecha_coincidencia(evento.getFecha_coincidencia());
+    n.setEmail_usuario(evento.getEmail_usuario());
     n.setDescripcion("¡Match! Se ha registrado un avistamiento que podría ser tu mascota " + evento.getNombre_mascota() + "!");
     n.setEstado_notificacion("ENVIADA");
 

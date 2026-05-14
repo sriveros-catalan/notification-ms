@@ -16,6 +16,12 @@ public class Notificacion {
     private String descripcion;
     private Long id_coincidencia;
     private Long id_usuario;
+    private Long id_usuario_reporte_perdida;
     private LocalDateTime fecha_creacion = LocalDateTime.now();
     private String mensajeError;
+    private String nombre_mascota;
+    private String direccion;
+    private String fecha_coincidencia;
+    private String email_usuario;
+
 }

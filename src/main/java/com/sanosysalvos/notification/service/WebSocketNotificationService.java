@@ -25,11 +25,15 @@ public class WebSocketNotificationService {
         try {
             // Construir mensaje personalizado
             Map<String, Object> mensaje = new HashMap<>();
-            mensaje.put("id_notificacion", notificacion.getId_notificacion());
-            mensaje.put("mensaje", notificacion.getDescripcion());
-            mensaje.put("estado", notificacion.getEstado_notificacion());
-            mensaje.put("fecha", notificacion.getFecha_creacion());
+            mensaje.put("titulo", "¡Coincidencia encontrada!");
+            mensaje.put("mensaje", "Se ha encontrado una coincidencia para tu mascota");
+            mensaje.put("direccion", notificacion.getDireccion());
+            mensaje.put("fecha_coincidencia", notificacion.getFecha_coincidencia());
+            mensaje.put("email_usuario", notificacion.getEmail_usuario());
+            mensaje.put("nombre_mascota", notificacion.getNombre_mascota());
+            mensaje.put("descripcion", notificacion.getDescripcion());
             mensaje.put("id_coincidencia", notificacion.getId_coincidencia());
+            mensaje.put("id_usuario_reporte_perdida", notificacion.getId_usuario_reporte_perdida());
 
             // Enviar al usuario específico
             // El usuario debe estar conectado a /topic/notifications/{idUsuario}

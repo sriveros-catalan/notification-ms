@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WebSocket Notificaciones</title>
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 24px;
+      background: #f4f7fb;
+      color: #1f2937;
+    }
+
+    .card {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    input, button {
+      font: inherit;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+    }
+
+    button {
+      cursor: pointer;
+      background: #2563eb;
+      color: white;
+      border: 0;
+      margin-right: 8px;
+      margin-top: 8px;
+    }
+
+    button.secondary {
+      background: #6b7280;
+    }
+
+    ul {
+      margin-top: 16px;
+      padding-left: 20px;
+    }
+
+    .status {
+      margin-top: 12px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Prueba WebSocket</h1>
+    <p>Conecta al canal <strong>/topic/notifications/{idUsuario}</strong>.</p>
+
+    <label for="userId">ID de usuario</label><br />
+    <input id="userId" type="number" value="1" min="1" />
+
+    <div>
+      <button id="connectBtn">Conectar</button>
+      <button id="disconnectBtn" class="secondary">Desconectar</button>
+      <button id="clearBtn" class="secondary">Limpiar</button>
+    </div>
+
+    <div class="status" id="status">Desconectado</div>
+    <ul id="messages"></ul>
+  </div>
+
+  <script>
+    let stompClient = null;
+    let subscription = null;
+
+    const messages = document.getElementById('messages');
+    const status = document.getElementById('status');
+    const userIdInput = document.getElementById('userId');
+
+    function addMessage(text) {
+      const li = document.createElement('li');
+      li.textContent = text;
+      messages.prepend(li);
+    }
+
+    function setStatus(text) {
+      status.textContent = text;
+    }
+
+    function connect() {
+      const userId = userIdInput.value.trim();
+      if (!userId) {
+        addMessage('Ingresa un ID de usuario válido');
+        return;
+      }
+
+      const socket = new SockJS('/ws-notifications');
+      stompClient = Stomp.over(socket);
+      stompClient.debug = null;
+
+      setStatus('Conectando...');
+
+      stompClient.connect({}, function () {
+        const destination = '/topic/notifications/' + userId;
+        subscription = stompClient.subscribe(destination, function (frame) {
+          try {
+            addMessage(JSON.stringify(JSON.parse(frame.body), null, 2));
+          } catch (e) {
+            addMessage(frame.body);
+          }
+        });
+
+        setStatus('Conectado a ' + destination);
+        addMessage('Suscrito a ' + destination);
+      }, function () {
+        setStatus('Error de conexión');
+      });
+    }
+
+    function disconnect() {
+      if (subscription) {
+        subscription.unsubscribe();
+        subscription = null;
+      }
+
+      if (stompClient) {
+        stompClient.disconnect();
+        stompClient = null;
+      }
+
+      setStatus('Desconectado');
+    }
+
+    document.getElementById('connectBtn').addEventListener('click', connect);
+    document.getElementById('disconnectBtn').addEventListener('click', disconnect);
+    document.getElementById('clearBtn').addEventListener('click', function () {
+      messages.innerHTML = '';
+    });
+  </script>
+</body>
+</html>

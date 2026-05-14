@@ -11,4 +11,5 @@ public class CoincidenciaEventDTO {
     private String direccion;
     private String fecha_coincidencia;
     private String email_usuario;
+    private String fotoMascota;
 }
