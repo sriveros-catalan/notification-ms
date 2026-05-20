@@ -1,6 +1,6 @@
 # notification-ms
 
-Microservicio de **notificaciones** (proyecto académico). Consume eventos desde **RabbitMQ**, persiste las notificaciones y las entrega en **tiempo real** a clientes vía **WebSocket (STOMP + SockJS)**.
+Microservicio de **notificaciones** (proyecto académico). Consume eventos desde **RabbitMQ**, persiste las notificaciones y las entrega en **tiempo real** a clientes vía **WebSocket (STOMP + SockJS)[...]
 
 > Repo: `sriveros-catalan/notification-ms`
 
@@ -36,7 +36,55 @@ Flujo general:
 
 ---
 
-## 3. Configuración de WebSocket
+## 3. Arquitectura y patrones de diseño
+
+### 3.1 Estilo arquitectónico
+
+- **Arquitectura por capas (Layered Architecture)**:
+  - **Controller (API REST)**: expone endpoints HTTP y delega la lógica de negocio.
+  - **Service (dominio / aplicación)**: orquesta el procesamiento de eventos y la creación de notificaciones.
+  - **Repository (persistencia)**: acceso a datos mediante Spring Data JPA.
+  - **Model/Entity**: representación de la tabla `notificaciones`.
+
+- **Orientada a eventos (Event-driven)**:
+  - El microservicio reacciona a eventos publicados por otros componentes (RabbitMQ) y ejecuta el flujo de notificación.
+
+- **Comunicación en tiempo real (push)**:
+  - Entrega de notificaciones hacia el cliente vía WebSocket (STOMP), publicando en topics.
+
+### 3.2 Patrones aplicados
+
+- **Publish/Subscribe (Pub/Sub)**:
+  - RabbitMQ: productor publica evento → `notification-ms` se suscribe/consume desde una cola.
+  - WebSocket STOMP: el servicio publica a `/topic/notifications/{idUsuario}` y los clientes suscritos reciben.
+
+- **Message Listener / Consumer**:
+  - El consumo de mensajes se implementa mediante `@RabbitListener`, separando la recepción del mensaje de la lógica del negocio.
+
+- **DTO (Data Transfer Object)**:
+  - El evento entrante se representa como `CoincidenciaEventDTO`.
+  - Conversión JSON → DTO mediante `Jackson2JsonMessageConverter`.
+
+- **Repository pattern**:
+  - `NotificacionRepository` abstrae las operaciones CRUD sobre la entidad `Notificacion`.
+
+- **Dependency Injection (IoC)**:
+  - Spring gestiona las dependencias entre controllers, services, repositories y configuraciones.
+
+- **Retry / Recovery (resiliencia)**:
+  - Reintentos de procesamiento con `@Retryable` y manejo final con `@Recover` para registrar fallos cuando se agotan los intentos.
+
+### 3.3 Componentes principales (mapeo a código)
+
+- **Controller (REST)**: `NotificationController`
+- **Servicio de dominio**: `NotificationService`
+- **Gateway de tiempo real (WebSocket publisher)**: `WebSocketNotificationService`
+- **Persistencia**: `NotificacionRepository` + entidad `Notificacion`
+- **Configuración de infraestructura**: `WebSocketConfig`, `RabbitMQConfig`
+
+---
+
+## 4. Configuración de WebSocket
 
 - Endpoint STOMP (SockJS):
   - `http://localhost:8081/ws-notifications`
@@ -55,7 +103,7 @@ Ejemplo:
 
 ---
 
-## 4. Configuración de RabbitMQ
+## 5. Configuración de RabbitMQ
 
 - El listener consume desde la cola configurada por:
   - `app.rabbitmq.queue`
@@ -63,7 +111,7 @@ Ejemplo:
 
 ---
 
-## 5. Endpoints REST
+## 6. Endpoints REST
 
 Base path:
 
@@ -82,7 +130,7 @@ Endpoints:
 
 ---
 
-## 6. Prueba rápida (WebSocket)
+## 7. Prueba rápida (WebSocket)
 
 Hay una página HTML de prueba incluida en el proyecto:
 
@@ -102,7 +150,7 @@ Pasos:
 
 ---
 
-## 7. Estructura del proyecto
+## 8. Estructura del proyecto
 
 Principales clases:
 
@@ -132,7 +180,7 @@ Principales clases:
 
 ---
 
-## 8. Docker
+## 9. Docker
 
 Este repo incluye un `Dockerfile` multi-stage que:
 
@@ -145,7 +193,7 @@ Expone el puerto:
 
 ---
 
-## 9. Notas de resiliencia
+## 10. Notas de resiliencia
 
 El procesamiento implementa reintentos:
 
@@ -154,6 +202,6 @@ El procesamiento implementa reintentos:
 
 ---
 
-## 10. Licencia
+## 11. Licencia
 
 Proyecto académico (sin licencia explícita).
