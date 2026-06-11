@@ -12,4 +12,6 @@ public class CoincidenciaEventDTO {
     private String fecha_coincidencia;
     private String email_usuario;
     private String fotoMascota;
+    /** Tipo de evento. Si es null se asume COINCIDENCIA_ENCONTRADA (compatibilidad). */
+    private String tipo_evento;
 }
